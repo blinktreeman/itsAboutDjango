@@ -115,3 +115,77 @@ INSTALLED_APPS = [
     'blog.apps.BlogConfig',
 ]
 ```
+## Приложение accounts
+
+Прежде чем перейти к созданию моделей приложения blog определимся каким образом 
+приложение будет работать с пользователями. Здесь вариант, который рекомендует к использованию документация Django, 
+использование пользовательской модели
+
+[Using a custom user model when starting a project](https://docs.djangoproject.com/en/4.1/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project)
+
+> If you’re starting a new project, it’s highly recommended to set up a 
+> custom user model, even if the default User model is sufficient for you.
+
+Если вы начинаете новый проект, настоятельно рекомендуется настроить 
+пользовательскую модель, даже если стандартная модель User вас полностью 
+устраивает.  
+
+И здесь также возможны несколько вариантов действия - использование классов 
+AbstractUser либо AbstractBaseUser (работа с AbstractBaseUser влечет сильно много 
+лишних действий, воспользуемся AbstractUser)
+
+### AbstractUser
+
+Если заглянем в модуль django.contrib.auth.models:
+```python
+class User(AbstractUser):
+    """
+    Users within the Django authentication system are represented by this
+    model.
+
+    Username and password are required. Other fields are optional.
+    """
+
+    class Meta(AbstractUser.Meta):
+        swappable = "AUTH_USER_MODEL"
+```
+Можем видеть, что класс User наследуется от AbstractUser. Это позволит нам 
+при создании пользовательской модели наследованной от AbstractUser использовать 
+те же поля и методы если бы мы пользовались напрямую моделью User.  
+Однако в дальнейшем, если возникнет необходимость, мы сможем расширить свою 
+пользовательскую модель.
+
+Для начала документация рекомендует задать пользовательскую модель в виде:
+```python
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    pass
+```
+Также необходимо переопределить пользовательскую модель по умолчанию, 
+указав значение для параметра AUTH_USER_MODEL в settings.py:
+```python
+AUTH_USER_MODEL = 'accounts.User'
+```
+## Создаем приложение accounts
+```shell
+(venv) PS C:\Users\eugen\PycharmProjects\itsAboutDjango> python manage.py startapp accounts
+(venv) PS C:\Users\eugen\PycharmProjects\itsAboutDjango> 
+```
+в settings.py:
+```python
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # blog application
+    'blog.apps.BlogConfig',
+    # accounts application
+    'accounts.apps.AccountsConfig',
+]
+```
