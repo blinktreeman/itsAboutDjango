@@ -11,6 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import dotenv_values
+
+# take environment variables from .env
+# https://pypi.org/project/python-dotenv/#getting-started
+ENV_PATH = Path('.') / '.env'
+CONFIG_VALUES = dotenv_values(ENV_PATH)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +26,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-wgh$^*mn^jod+%t)_k8k^y+*q(j$_obv##+o#&@2td83_j&m1$'
+# SECRET_KEY = 'django-insecure-wgh$^*mn^jod+%t)_k8k^y+*q(j$_obv##+o#&@2td83_j&m1$'
+SECRET_KEY = CONFIG_VALUES['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,6 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # blog application
+    'blog.apps.BlogConfig',
 ]
 
 MIDDLEWARE = [
