@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+from .managers import PublishedManager
 
 CustomUser = get_user_model()
 
@@ -30,6 +31,11 @@ class Post(models.Model):
     slug = models.SlugField(max_length=250,
                             verbose_name='slug',
                             unique_for_date='published')
+
+    # Default manager
+    objects = models.Manager()
+    # Published posts manager
+    published_posts = PublishedManager()
 
     class Meta:
         ordering = ('-published',)
