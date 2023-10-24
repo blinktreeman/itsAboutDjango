@@ -27,19 +27,51 @@
         </div>
 
         <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-            <li><a href="#" class="nav-link px-2 link-secondary">Home</a></li>
-            <li><a href="#" class="nav-link px-2">Blog</a></li>
+            <li><a href="/" class="nav-link px-2 link-secondary">Home</a></li>
         </ul>
-
-        <div class="col-md-3 text-end">
-            <button type="button" class="btn btn-outline-primary me-2">Login</button>
-            <button type="button" class="btn btn-primary">Sign-up</button>
-        </div>
     </header>
 </div>
-<div class="container">
-    {% block content %}
-    {% endblock content %}
-</div>
+<main class="container">
+    <div class="row">
+        <div class="col-md-8">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="position-sticky" style="top: 2rem;">
+                {% block sidebar %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="py-3 my-4 border-top">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <a href="/blog" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                    <img src="{% static 'images/signpost-split.svg' %}" width="24" height="24" alt="">
+                </a>
+                <span class="mb-3 mb-md-0 text-muted">&copy; 2023 It's about Django!</span>
+            </div>
+
+            <ul class="nav col-auto">
+                <li>
+                    <a class="text-muted" href="#">
+                        <img src="{% static 'images/github.svg' %}" width="24" height="24" alt="">
+                    </a>
+                </li>
+                <li class="ms-3">
+                    <a class="text-muted" href="#">
+                        <img src="{% static 'images/twitter.svg' %}" width="24" height="24" alt="">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
 </body>
 </html>
