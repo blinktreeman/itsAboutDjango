@@ -283,3 +283,136 @@ class Comment(models.Model):
     def __str__(self):
         return self.body[:40]
 ```
+
+Также создадим менеджер моделей blog/managers.py:
+```python
+from django.db import models
+
+
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super(PublishedManager, self)\
+            .get_queryset()\
+            .filter(status='published')
+```
+
+И добавим его к модели blog/models.py:
+```python
+from .managers import PublishedManager
+...
+
+# Default manager
+objects = models.Manager()
+# Published posts manager
+published_posts = PublishedManager()
+```
+
+## Create _base.html and home.html
+```shell
+(venv) PS C:\Users\eugen\PycharmProjects\itsAboutDjango> cd .\blog\
+(venv) PS C:\Users\eugen\PycharmProjects\itsAboutDjango\blog> mkdir templates
+(venv) PS C:\Users\eugen\PycharmProjects\itsAboutDjango\blog> cd .\templates\
+(venv) PS C:\Users\eugen\PycharmProjects\itsAboutDjango\blog\templates>
+(venv) PS C:\Users\eugen\PycharmProjects\itsAboutDjango\blog\templates> notepad _base.html
+(venv) PS C:\Users\eugen\PycharmProjects\itsAboutDjango\blog\templates> notepad home.html
+```
+Добавляем маршруты к блогу - itsAboutDjango/urls.py:
+```python
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls')), # <- add
+]
+```
+Для blog/views.py:
+```python
+from django.shortcuts import render, get_object_or_404
+
+from .models import Post
+
+
+# https://docs.djangoproject.com/en/4.2/intro/tutorial03/#a-shortcut-render
+def post_list(request):
+    posts = Post.published_posts.all()
+    return render(request,
+                  'home.html',
+                  {'posts': posts})
+
+
+def post_detail(request, year, month, day, post):
+    post = get_object_or_404(Post,
+                             slug=post,
+                             status='published',
+                             published__year=year,
+                             published__month=month,
+                             published__day=day)
+    comments = post.comments.filter(active=True)
+    return render(request,
+                  'detail.html',
+                  {'post': post,
+                   'comments': comments})
+```
+Для blog/urls.py:
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.post_list, name='post_list'),
+    # post views
+    path('<int:year>/<int:month>/<int:day>/<slug:post>/',
+         views.post_detail,
+         name='post_detail'),
+]
+```
+
+Также страница поста с комментариями blog/templates/detail.html:
+```html
+{% extends "_base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% load static %}
+{% load markdown_extras %}
+
+{% block content %}
+<div class="container">
+    <div class="blog-post">
+        <h2 class="blog-post-title mb-1"> {{ post.title }} </h2>
+        <p class="blog-post-meta">Published {{ post.published }} by {{ post.author }}</p>
+        {{ post.body| markdown | safe }}
+    </div>
+</div>
+<div class="container pb-5">
+    <div class="blog-comments">
+        <div class="row">
+            <div class="col">
+                {% with comments.count as total_comments %}
+                <h2>
+                    {{ total_comments }} comment{{ total_comments|pluralize }}
+                </h2>
+                {% endwith %}
+            </div>
+        </div>
+
+        {% for comment in comments %}
+        <div class="blog-comment-header bg-secondary bg-gradient text-white rounded mt-3">
+            <div class="row">
+                <div class="col">
+                    <div class="vstack">
+                        <div class="hstack gap-3">
+                            <div class="text-white"> {{ comment.author }} </div>
+                        </div>
+                        <div class="blog-comment-meta text-white-50"> Comment {{ comment.created }} </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="blog-comment-body mt-3">
+            {{ comment.body|linebreaks }}
+        </div>
+        {% empty %}
+        <p>There are no comments yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+```

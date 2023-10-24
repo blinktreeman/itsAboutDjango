@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from .managers import PublishedManager
 
 CustomUser = get_user_model()
 
@@ -31,10 +33,23 @@ class Post(models.Model):
                             verbose_name='slug',
                             unique_for_date='published')
 
+    # Default manager
+    objects = models.Manager()
+    # Published posts manager
+    published_posts = PublishedManager()
+
     class Meta:
         ordering = ('-published',)
         verbose_name = 'Статья'
         verbose_name_plural = 'Статьи'
+
+    def get_absolute_url(self):
+        return reverse('post_detail',
+                       args=[self.published.strftime('%Y'),
+                             self.published.strftime('%m'),
+                             self.published.strftime('%d'),
+                             self.slug,
+                             ])
 
     def __str__(self):
         return self.title
