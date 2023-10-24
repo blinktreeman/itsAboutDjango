@@ -364,3 +364,55 @@ urlpatterns = [
          name='post_detail'),
 ]
 ```
+
+Также страница поста с комментариями blog/templates/detail.html:
+```html
+{% extends "_base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% load static %}
+{% load markdown_extras %}
+
+{% block content %}
+<div class="container">
+    <div class="blog-post">
+        <h2 class="blog-post-title mb-1"> {{ post.title }} </h2>
+        <p class="blog-post-meta">Published {{ post.published }} by {{ post.author }}</p>
+        {{ post.body| markdown | safe }}
+    </div>
+</div>
+<div class="container pb-5">
+    <div class="blog-comments">
+        <div class="row">
+            <div class="col">
+                {% with comments.count as total_comments %}
+                <h2>
+                    {{ total_comments }} comment{{ total_comments|pluralize }}
+                </h2>
+                {% endwith %}
+            </div>
+        </div>
+
+        {% for comment in comments %}
+        <div class="blog-comment-header bg-secondary bg-gradient text-white rounded mt-3">
+            <div class="row">
+                <div class="col">
+                    <div class="vstack">
+                        <div class="hstack gap-3">
+                            <div class="text-white"> {{ comment.author }} </div>
+                        </div>
+                        <div class="blog-comment-meta text-white-50"> Comment {{ comment.created }} </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="blog-comment-body mt-3">
+            {{ comment.body|linebreaks }}
+        </div>
+        {% empty %}
+        <p>There are no comments yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+```
